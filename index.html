@@ -29,13 +29,51 @@
             box-shadow: 0 4px 15px rgba(140, 59, 35, 0.4); margin-top: auto; margin-bottom: 30px;
         }
 
-        /* CENTERED SWIPE TOAST */
-        #swipe-toast {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(96, 59, 24, 0.95); color: #f4efea; padding: 15px 30px;
-            border-radius: 30px; z-index: 1002; font-family: 'Noto Serif', serif; font-size: 18px;
-            opacity: 0; pointer-events: none; transition: opacity 0.5s ease; text-align: center; white-space: nowrap;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        /* 1. INITIAL SWIPING HAND HINT (Using your PNG image) */
+        #initial-swipe-hint {
+            position: fixed; right: 0px; top: 40%;
+            width: 80px; /* Slightly larger to accommodate the image dimensions */
+            height: auto;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); /* Adds depth to the white PNG */
+            display: none; 
+            pointer-events: none; /* User can swipe right through it */
+            animation: hand-swipe-anim 2.5s infinite ease-in-out;
+            z-index: 990; /* 990 puts it behind the info box (which is 1000) */
+        }
+
+        @keyframes hand-swipe-anim {
+            0% { transform: translateY(-50%) translateX(10px); opacity: 0; }
+            20% { opacity: 1; }
+            70% { transform: translateY(-50%) translateX(-60px); opacity: 1; }
+            100% { transform: translateY(-50%) translateX(-80px); opacity: 0; }
+        }
+
+        /* 2. PERSISTENT SUBTLE EDGE BAR */
+        #persistent-swipe-hint {
+            position: fixed; right: 0; top: 50%; transform: translateY(-50%);
+            display: none; /* Hidden until first swipe is complete */
+            flex-direction: row; align-items: center;
+            z-index: 1002;
+            pointer-events: none;
+        }
+
+        #persistent-arrow {
+            width: 14px; height: 14px; fill: #f4efea;
+            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+            margin-right: 2px;
+            animation: pulse-tiny 3s infinite;
+        }
+
+        #persistent-bar {
+            width: 5px; height: 60px; 
+            background: rgba(140, 59, 35, 0.8); /* Rust Red */
+            border-radius: 4px 0 0 4px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+        }
+
+        @keyframes pulse-tiny {
+            0%, 100% { transform: translateX(0); opacity: 0.4; }
+            50% { transform: translateX(-3px); opacity: 0.9; }
         }
 
         /* MINIMALIST RIGHT-ALIGNED MENU */
@@ -71,7 +109,7 @@
             width: 90%; max-width: 420px; display: none; flex-direction: column; z-index: 1000;
         }
         #info-wrapper { background: #f4efea; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.25); border: 2px solid #8c3b23; margin-bottom: 10px; display: none; 
-            /* Added max-height and scrolling for long text */
+            /* Enable scrolling for long descriptions and excerpts */
             max-height: 50vh; overflow-y: auto; overflow-x: hidden;
         }
         #info-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 20px 10px 20px; position: sticky; top: 0; background: #f4efea; z-index: 10; border-radius: 12px 12px 0 0; }
@@ -100,22 +138,24 @@
         <button id="start-btn" onclick="startScanner()">Scan Manuscript</button>
     </div>
 
-    <div id="swipe-toast">← Swipe left for links</div>
+    <img id="initial-swipe-hint" src="./swipe_left.png" alt="Swipe left for options">
+
+    <div id="persistent-swipe-hint">
+        <svg id="persistent-arrow" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+        <div id="persistent-bar"></div>
+    </div>
 
     <div id="right-menu">
         <div style="color: #8c3b23; font-weight: bold; font-family: 'Noto Serif', serif; font-size: 16px;">Connect</div>
         <div class="links-container">
             <a href="https://midf.org.in/" target="_blank" class="menu-link">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                Website
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> Website
             </a>
             <a href="https://www.linkedin.com/company/midf-india/" target="_blank" class="menu-link">
-                <svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
-                LinkedIn
+                <svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg> LinkedIn
             </a>
             <a href="https://x.com/midf_org" target="_blank" class="menu-link">
-                <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                X
+                <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> X
             </a>
         </div>
     </div>
@@ -142,9 +182,7 @@
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
         
         <a-entity id="target-0" mindar-image-target="targetIndex: 0"></a-entity>
-
         <a-entity id="target-1" mindar-image-target="targetIndex: 1"></a-entity>
-
         <a-entity id="target-2" mindar-image-target="targetIndex: 2"></a-entity>
     </a-scene>
 
@@ -153,52 +191,26 @@
         const archiveDatabase = {
             target0: {
                 titleName: "Vṛddhagārgīya Jyotiṣa",
-                summary: { 
-                    title: "DESCRIPTION", 
-                    body: "Vṛddha Gārgīya Jyotiṣa is remarkable for preserving real astronomical observations from the last stretch of the Bronze Age, making it a rare window into early Indian science. Unlike later astrology, it treats jyotiṣa as a holistic natural science, covering planets, seasons, rainfall, and even earthquakes. It uniquely classifies over 100 comets, describing their cycles and linking them to events like floods and wars. The text also reflects early cosmology with the universe emerging from primordial “salila”, blending philosophy with observation. Overall, it is an evolving scientific tradition, not just an astrological text." 
-                },
-                info: { 
-                    title: "METADATA", 
-                    body: "• <strong style='color:#603b18;'>Material:</strong> Paper<br>• <strong style='color:#603b18;'>Author:</strong> Vṛddha Garga, founder of the Pre-siddhantic Jyotiṣa school named after himself<br>• <strong style='color:#603b18;'>Dating:</strong> Written in phases between 1300BCE and 500BCE<br>• <strong style='color:#603b18;'>Location:</strong> Lalchand Research Library, Chandigarh" 
-                },
-                trans: { 
-                    title: "EXCERPTS", 
-                    body: "<strong style='color:#603b18;'>Invocation</strong><br>Salutations to that Savitṛ, the Ordainer of Wisdom, the creator of the world, the destroyer of darkness, the protector of living beings, the granter of fruits, and the source of intentionality within the stream of mantra-vision.<br><br><strong style='color:#603b18;'>Theory of calendar computation (C.7 v.20)</strong><br>Thus, by observing the increase and decrease of both day and night, one should determine the measure of the seasons and months through the movement of the shadow and the sun." 
-                }
+                summary: { title: "DESCRIPTION", body: "Vṛddha Gārgīya Jyotiṣa is remarkable for preserving real astronomical observations from the last stretch of the Bronze Age, making it a rare window into early Indian science. Unlike later astrology, it treats jyotiṣa as a holistic natural science, covering planets, seasons, rainfall, and even earthquakes. It uniquely classifies over 100 comets, describing their cycles and linking them to events like floods and wars. The text also reflects early cosmology with the universe emerging from primordial “salila”, blending philosophy with observation. Overall, it is an evolving scientific tradition, not just an astrological text." },
+                info: { title: "METADATA", body: "• <strong style='color:#603b18;'>Material:</strong> Paper<br>• <strong style='color:#603b18;'>Author:</strong> Vṛddha Garga, founder of the Pre-siddhantic Jyotiṣa school name after himself<br>• <strong style='color:#603b18;'>Dating:</strong> Written in phases between 1300BCE and 500BCE<br>• <strong style='color:#603b18;'>Location:</strong> Lalchand Research Library, Chandigarh" },
+                trans: { title: "EXCERPTS", body: "<strong style='color:#603b18;'>Invocation</strong><br>Salutations to that Savitṛ, the Ordainer of Wisdom, the creator of the world, the destroyer of darkness, the protector of living beings, the granter of fruits, and the source of intentionality within the stream of mantra-vision.<br><br><strong style='color:#603b18;'>Theory of calendar computation (C.7 v.20)</strong><br>Thus, by observing the increase and decrease of both day and night, one should determine the measure of the seasons and months through the movement of the shadow and the sun." }
             },
             target1: {
                 titleName: "Mānasollāsa",
-                summary: { 
-                    title: "DESCRIPTION", 
-                    body: "The Abhilaṣitārthacintāmaṇi or Mānasollāsa, a Sanskrit encyclopedia, covers statecraft, law, science, leisure, and daily life in five sprawling books. It instructs a king on governing provinces, organizing armies, managing espionage, and even supervising artisans and farmers. Food, aesthetics, and art receive striking attention: it records refined rice cakes (early idli‑like dishes), sweet dishes, meat curries, and spiced wines, but also rare delicacies like fried black rats for the royal table. Courtly beauty, jewelry, perfumes, clothing colours, music, dance, painting, and architecture are codified as sciences of pleasure that sustain royal dignity and emotional balance." 
-                },
-                info: { 
-                    title: "METADATA", 
-                    body: "• <strong style='color:#603b18;'>Material:</strong> Paper<br>• <strong style='color:#603b18;'>Author:</strong> Cālukyamalla Someśvaradeva Sarvajñabhūpāla, i.e. Chālukya Someśvara III<br>• <strong style='color:#603b18;'>Dating:</strong> 12th century, during the lifetime of Chālukya Someśvara III<br>• <strong style='color:#603b18;'>Location:</strong> Oriental Library, Baroda" 
-                },
-                trans: { 
-                    title: "EXCERPTS", 
-                    body: "<strong style='color:#603b18;'>Recipes (B.4, C.13):</strong><br><br><strong style='color:#603b18;'>For Polikā (now Marathi ‘pol̤ī’, Kannada ‘hōḷige’)</strong><br>Poḷikās are recommended to be eaten when they have attained a slight roast from a charcoal stove. The flour coated dough should not be moved excessively on the pan. The Poḷikās must be cooked on a well heated earthen vessel.<br><br><strong style='color:#603b18;'>For Iderikā (modern ‘Idli’) and Vaṭikā (modern ‘vada’)</strong><br>One should place fermented black gram batter into small circular molds. Having covered them with fabric, one should cook them thoroughly. After taking them down, one should then sprinkle powdered pepper over them. One should flavor it with asafoetida and ghee, and cumin. These excellent iderikā are very soothing, white, and smooth." 
-                }
+                summary: { title: "DESCRIPTION", body: "The Abhilaṣitārthacintāmaṇi or Mānasollāsa, a Sanskrit encyclopedia, covers statecraft, law, science, leisure, and daily life in five sprawling books. It instructs a king on governing provinces, organizing armies, managing espionage, and even supervising artisans and farmers. Food, aesthetics, and art receive striking attention: it records refined rice cakese(arly idli‑like dishes), sweet dishes, meat curries, and spiced wines, but also rare delicacies like fried black rats for the royal table. Courtly beauty, jewelry, perfumes, clothing colours, music, dance, painting, and architecture are codified as sciences of pleasure that sustain royal dignity and emotional balance." },
+                info: { title: "METADATA", body: "• <strong style='color:#603b18;'>Material:</strong> Paper<br>• <strong style='color:#603b18;'>Dating:</strong> 12th century, during the lifetime of Chālukya Someśvara III<br>• <strong style='color:#603b18;'>Author:</strong> Cālukyamalla Someśvaradeva Sarvajñabhūpāla, i.e. Chālukya Someśvara III<br>• <strong style='color:#603b18;'>Location:</strong> Oriental Library, Baroda" },
+                trans: { title: "EXCERPTS", body: "<strong style='color:#603b18;'>Recipes (B.4, C.13):</strong><br><br><strong style='color:#603b18;'>For Polikā (now Marathi ‘pol̤ī’, Kannada ‘hōḷige’</strong><br>Poḷikās are recommended to be eaten when they have attained a slight roast from a charcoal stove. The flour coated dough should not be moved excessively on the pan. The Poḷikās must be cooked on a well heated earthen vessel.<br><br><strong style='color:#603b18;'>For Iderikā (modern ‘Idli’) and Vaṭikā (modern ‘vada’)</strong><br>One should place fermented black gram batter into small circular molds. Having covered them with fabric, one should cook them thoroughly. After taking them down, one should then sprinkle powdered pepper over them. One should flavor it with asafoetida and ghee, and cumin.These excellent iderikā are very soothing, white, and smooth." }
             },
             target2: {
                 titleName: "Guḍnāpur Pillar Inscription",
-                summary: { 
-                    title: "DESCRIPTION", 
-                    body: "The Guḍnāpur pillar of the Kadambas uniquely exalts Kāma, not Viṣṇu or Śiva, as cosmic creator, preserver, and destroyer, and centers a royal Kāma temple inside the Kadamba palace between women’s quarters and dance halls. It prescribes a flexible spring Kāma‑festival with scented breezes, bees as “smoke,” and cuckoos as love‑mediators, clearly an early vasantotsava, ancestral to Holi‑style celebrations of eros and renewal. It also names political handbooks of Viṣṇugupta (Chanakya) and Subandhu as the king’s guides, while its prose maps nine numbered brahmadeya land‑grants, tanks, and orchards, preserving the agrarian geography of early Kadamba Karnataka." 
-                },
-                info: { 
-                    title: "METADATA", 
-                    body: "• <strong style='color:#603b18;'>Material:</strong> Stone Pillar<br>• <strong style='color:#603b18;'>Commissioner:</strong> Kadamba King Ravivarma<br>• <strong style='color:#603b18;'>Dating:</strong> 5th Century CE<br>• <strong style='color:#603b18;'>Location:</strong> Gudnapur, Sirsi" 
-                },
-                trans: { 
-                    title: "EXCERPTS", 
-                    body: "<strong style='color:#603b18;'>References to the Arthaśāstra</strong><br>He, the lord, having slain the ruler Viṣṇudāsa, obtained sovereignty while still just a child adorned by its control of the 18 circles. (14)<br><br>He acquired mastery of both the political wisdom authored by Viṣṇugupta and Subandhu, which promotes the elevation of both realms, the political and the religious. (18)<br><br><strong style='color:#603b18;'>Early evidence of Holi</strong><br>This temple where the fire of Kāma—which has smoke in the form of rows of bees—will be kindled by the southern breeze, cooling, conveying joy, and which carries the scent of flowers. (25)<br><br>There, the festival was established for the Mind-Born god, who effects the creation, destruction, and maintenance of the universe, in the first month of every spring, a feast for the lotus-eyes of the people. (27)" 
-                }
+                summary: { title: "DESCRIPTION", body: "The Guḍnāpur pillar of the Kadambas uniquely exalts Kāma, not Viṣṇu or Śiva, as cosmic creator, preserver, and destroyer, and centers a royal Kāma temple inside the Kadamba palace between women’s quarters and dance halls. It prescribes a flexible spring Kāma‑festival with scented breezes, bees as “smoke,” and cuckoos as love‑mediators, clearly an early vasantotsava, ancestral to Holi‑style celebrations of eros and renewal. It also names political handbooks of Viṣṇugupta (Chanakya) and Subandhu as the king’s guides, while its prose maps nine numbered brahmadeya land‑grants, tanks, and orchards, preserving the agrarian geography of early Kadamba Karnataka." },
+                info: { title: "METADATA", body: "• <strong style='color:#603b18;'>Material:</strong> Stone Pillar<br>• <strong style='color:#603b18;'>Commissioner:</strong> Kadamba King Ravivarma<br>• <strong style='color:#603b18;'>Dating:</strong> 5th Century CE<br>• <strong style='color:#603b18;'>Location:</strong> Gudnapur, Sirsi" },
+                trans: { title: "EXCERPTS", body: "<strong style='color:#603b18;'>References to the Arthaśāstra</strong><br>He, the lord, having slain the ruler Viṣṇudāsa, obtained sovereignty while still just a child adorned by its control of the 18 circles. (14)<br><br>He acquired mastery of both the political wisdom authored by Viṣṇugupta and Subandhu, which promotes the elevation of both realms, the political and the religious. (18)<br><br><strong style='color:#603b18;'>Early evidence of Holi</strong><br>This temple where the fire of Kāma—which has smoke in the form of rows of bees—will be kindled by the southern breeze, cooling, conveying joy, and which carries the scent of flowers. (25)<br><br>There, the festival was established for the Mind-Born god, who effects the creation, destruction, and maintenance of the universe, in the first month of every spring, a feast for the lotus-eyes of the people. (27)" }
             }
         };
 
         let activeTargetId = null;
+        let hasSwipedOnce = false; // Flag to manage the one-time swipe hint
 
         const uiLayer = document.querySelector('#ar-ui-layer');
         const topBar = document.querySelector('#top-title-bar');
@@ -206,18 +218,16 @@
         const titleBox = document.querySelector('#info-title');
         const box = document.querySelector('#info-content');
         const welcomeScreen = document.querySelector('#welcome-screen');
-        const swipeToast = document.querySelector('#swipe-toast');
         const rightMenu = document.querySelector('#right-menu');
+        
+        const initialHint = document.querySelector('#initial-swipe-hint');
+        const persistentHint = document.querySelector('#persistent-swipe-hint');
 
         window.addEventListener("load", () => { document.querySelector('#loading').style.display = 'none'; });
 
         function startScanner() {
             welcomeScreen.style.opacity = '0';
-            setTimeout(() => { 
-                welcomeScreen.style.display = 'none'; 
-                swipeToast.style.opacity = '1';
-                setTimeout(() => { swipeToast.style.opacity = '0'; }, 3500); 
-            }, 500);
+            setTimeout(() => { welcomeScreen.style.display = 'none'; }, 500);
         }
 
         // --- TARGET DETECTION EVENT SETUP ---
@@ -235,12 +245,19 @@
                 topBar.innerHTML = archiveDatabase[targetId].titleName;
                 uiLayer.style.display = 'flex'; 
                 topBar.style.display = 'block';
+                
+                // Show hint based on whether they've swiped successfully before
+                if (!hasSwipedOnce) { initialHint.style.display = 'block'; }
+                else { persistentHint.style.display = 'flex'; }
+                
                 closeTab(); 
             });
 
             targetElement.addEventListener("targetLost", () => {
                 uiLayer.style.display = 'none'; 
                 topBar.style.display = 'none'; 
+                initialHint.style.display = 'none';
+                persistentHint.style.display = 'none';
                 closeTab(); 
                 hideMenu();
                 activeTargetId = null;
@@ -250,12 +267,9 @@
         // --- DYNAMIC TAB LOGIC ---
         function setTab(tabType) {
             if (!activeTargetId) return; 
-
             infoWrapper.style.display = 'block';
             
-            // Ensures the box scrolls to top when a new tab is opened
-            infoWrapper.scrollTop = 0; 
-            
+            // Re-use data logic, Description button will load "AI Summary" text
             titleBox.innerHTML = archiveDatabase[activeTargetId][tabType].title;
             box.innerHTML = archiveDatabase[activeTargetId][tabType].body;
             
@@ -275,7 +289,7 @@
         document.addEventListener('touchstart', e => {
             touchstartX = e.changedTouches[0].screenX;
             touchstartY = e.changedTouches[0].screenY;
-            // Prevent swipe closing when user is scrolling the text box
+            // Tap anywhere logic for menu
             if (rightMenu.style.display === 'flex' && !rightMenu.contains(e.target) && !infoWrapper.contains(e.target)) { hideMenu(); }
         });
 
@@ -293,17 +307,27 @@
             let xDiff = touchstartX - touchendX;
             let yDiff = touchstartY - touchendY;
             if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 60) {
-                if (xDiff > 0) { showMenu(); } else { hideMenu(); }
+                if (xDiff > 0) { 
+                    hasSwipedOnce = true; // Mark gesture as learned
+                    showMenu(); 
+                } 
+                else { hideMenu(); }
             }
         }
 
         function showMenu() {
             rightMenu.style.display = 'flex';
+            initialHint.style.display = 'none'; // Ensure big hint is gone
+            persistentHint.style.display = 'none'; // Ensure persistent hint is gone
             setTimeout(() => { rightMenu.style.opacity = '1'; }, 10);
         }
 
         function hideMenu() {
             rightMenu.style.opacity = '0';
+            if (activeTargetId) { 
+                // Once swiped, only the subtle persistent hint reappears
+                persistentHint.style.display = 'flex'; 
+            }
             setTimeout(() => { rightMenu.style.display = 'none'; }, 300);
         }
     </script>
