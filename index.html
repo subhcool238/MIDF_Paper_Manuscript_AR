@@ -38,10 +38,10 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        /* MINIMALIST RIGHT-ALIGNED MENU (No Cross Button) */
+        /* MINIMALIST RIGHT-ALIGNED MENU */
         #right-menu {
             position: fixed; top: 50%; right: 20px; transform: translateY(-50%);
-            background: rgba(244, 239, 234, 0.95); /* Light Beige */
+            background: rgba(244, 239, 234, 0.95); 
             border: 2px solid #8c3b23; border-radius: 16px;
             padding: 20px 15px; z-index: 1004;
             display: none; flex-direction: column; align-items: center; gap: 20px;
@@ -60,7 +60,7 @@
         .menu-link svg { width: 32px; height: 32px; fill: #8c3b23; transition: transform 0.2s; }
         .menu-link:active svg { transform: scale(0.9); }
 
-        /* EXISTING AR STYLES */
+        /* AR UI STYLES */
         #top-title-bar {
             position: fixed; top: 0; left: 0; width: 100%; background: rgba(96, 59, 24, 0.95); 
             color: #f4efea; text-align: center; padding: 15px 0; font-family: 'Noto Serif', serif; 
@@ -70,10 +70,13 @@
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 420px; display: none; flex-direction: column; z-index: 1000;
         }
-        #info-wrapper { background: #f4efea; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.25); border: 2px solid #8c3b23; margin-bottom: 10px; display: none; }
-        #info-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 20px 10px 20px; }
-        #info-title { color: #8c3b23; font-weight: bold; font-family: 'Noto Serif', serif; font-size: 20px; margin: 0; }
-        #close-btn { color: #8c3b23; font-size: 16px; font-weight: bold; cursor: pointer; font-family: sans-serif; line-height: 1; margin: 0; }
+        #info-wrapper { background: #f4efea; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.25); border: 2px solid #8c3b23; margin-bottom: 10px; display: none; 
+            /* Added max-height and scrolling for long text */
+            max-height: 50vh; overflow-y: auto; overflow-x: hidden;
+        }
+        #info-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 20px 10px 20px; position: sticky; top: 0; background: #f4efea; z-index: 10; border-radius: 12px 12px 0 0; }
+        #info-title { color: #8c3b23; font-weight: bold; font-family: 'Noto Serif', serif; font-size: 20px; margin: 0; text-transform: uppercase; }
+        #close-btn { color: #8c3b23; font-size: 16px; font-weight: bold; cursor: pointer; font-family: sans-serif; line-height: 1; margin: 0; padding-left: 15px;}
         #info-content { padding: 0px 20px 20px 20px; color: #603b18; font-size: 16px; line-height: 1.5; }
         #tab-group { display: flex; background: #7a5c3a; padding: 8px; border-radius: 12px; border: 1px solid #603b18; transition: border-radius 0.2s; }
         .tab-button { flex: 1; padding: 12px 5px; border: none; background: transparent; color: #f4efea; font-family: 'Noto Serif', serif; font-size: 12px; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; letter-spacing: 0.5px; }
@@ -91,7 +94,7 @@
             <div id="welcome-title">MIDF DIGITAL ARCHIVE</div>
             <div id="welcome-text">
                 Welcome to the interactive AR experience.<br><br>
-                Please ensure you are in a well-lit area. Point your camera directly at the manuscript to reveal its historical data and AI translations.
+                Please ensure you are in a well-lit area. Point your camera directly at the manuscript to reveal its historical data and translations.
             </div>
         </div>
         <button id="start-btn" onclick="startScanner()">Scan Manuscript</button>
@@ -117,7 +120,7 @@
         </div>
     </div>
 
-    <div id="top-title-bar">PAPER MANUSCRIPT</div>
+    <div id="top-title-bar"></div>
 
     <div id="ar-ui-layer">
         <div id="info-wrapper">
@@ -129,32 +132,79 @@
         </div>
         
         <div id="tab-group">
-            <button id="btn-summary" class="tab-button" onclick="setTab('summary')">AI Summary</button>
-            <button id="btn-info" class="tab-button" onclick="setTab('info')">Information</button>
-            <button id="btn-trans" class="tab-button" onclick="setTab('trans')">Translation</button>
+            <button id="btn-summary" class="tab-button" onclick="setTab('summary')">Description</button>
+            <button id="btn-info" class="tab-button" onclick="setTab('info')">Metadata</button>
+            <button id="btn-trans" class="tab-button" onclick="setTab('trans')">Excerpts</button>
         </div>
     </div>
 
     <a-scene mindar-image="imageTargetSrc: ./targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-        <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
-            <a-plane position="0 0 0" width="1.1" height="0.8" material="color: #8c3b23; opacity: 0.3; transparent: true"></a-plane>
-        </a-entity>
+        
+        <a-entity id="target-0" mindar-image-target="targetIndex: 0"></a-entity>
+
+        <a-entity id="target-1" mindar-image-target="targetIndex: 1"></a-entity>
+
+        <a-entity id="target-2" mindar-image-target="targetIndex: 2"></a-entity>
     </a-scene>
 
     <script>
-        const contentData = {
-            summary: { title: "AI SUMMARY", body: "Confirms a donation by King Bappa to Brahmins in Apitti. The grant includes land rights and local serfs, ensuring continuity of religious services." },
-            info: { title: "TECHNICAL DATA", body: "• <strong style='color:#603b18;'>Artifact:</strong> Copper Plate<br>• <strong style='color:#603b18;'>Dynasty:</strong> Pallava<br>• <strong style='color:#603b18;'>Era:</strong> 4th Century CE<br>• <strong style='color:#603b18;'>Region:</strong> Kanchipuram" },
-            trans: { title: "EPIGRAPHIC TEXT", body: "'Success ! From Kāmchīpura-the righteous supreme king of great kings of the Pallavas Sivakhaṁdavama (Śivaskandavarman), a Bhâraddāya (Bhāradvāja) an offerer of Agnishṭoma, Vajapeya and Aśvamedha (sacrifices) [issues the following orders]: <br>[We send greeting]' to our lords of provinces, vatthas, royal princes, generals, rulers of districts, custom-house officers, prefects of countries and others, to the freeholders of various villages, to herdsmen, cowherds, ministers, foresters, gumikas, túthikas, neyikas, and all others employed in our service.'" }
+        // --- MULTI-TARGET DATABASE ---
+        const archiveDatabase = {
+            target0: {
+                titleName: "Vṛddhagārgīya Jyotiṣa",
+                summary: { 
+                    title: "DESCRIPTION", 
+                    body: "Vṛddha Gārgīya Jyotiṣa is remarkable for preserving real astronomical observations from the last stretch of the Bronze Age, making it a rare window into early Indian science. Unlike later astrology, it treats jyotiṣa as a holistic natural science, covering planets, seasons, rainfall, and even earthquakes. It uniquely classifies over 100 comets, describing their cycles and linking them to events like floods and wars. The text also reflects early cosmology with the universe emerging from primordial “salila”, blending philosophy with observation. Overall, it is an evolving scientific tradition, not just an astrological text." 
+                },
+                info: { 
+                    title: "METADATA", 
+                    body: "• <strong style='color:#603b18;'>Material:</strong> Paper<br>• <strong style='color:#603b18;'>Author:</strong> Vṛddha Garga, founder of the Pre-siddhantic Jyotiṣa school named after himself<br>• <strong style='color:#603b18;'>Dating:</strong> Written in phases between 1300BCE and 500BCE<br>• <strong style='color:#603b18;'>Location:</strong> Lalchand Research Library, Chandigarh" 
+                },
+                trans: { 
+                    title: "EXCERPTS", 
+                    body: "<strong style='color:#603b18;'>Invocation</strong><br>Salutations to that Savitṛ, the Ordainer of Wisdom, the creator of the world, the destroyer of darkness, the protector of living beings, the granter of fruits, and the source of intentionality within the stream of mantra-vision.<br><br><strong style='color:#603b18;'>Theory of calendar computation (C.7 v.20)</strong><br>Thus, by observing the increase and decrease of both day and night, one should determine the measure of the seasons and months through the movement of the shadow and the sun." 
+                }
+            },
+            target1: {
+                titleName: "Mānasollāsa",
+                summary: { 
+                    title: "DESCRIPTION", 
+                    body: "The Abhilaṣitārthacintāmaṇi or Mānasollāsa, a Sanskrit encyclopedia, covers statecraft, law, science, leisure, and daily life in five sprawling books. It instructs a king on governing provinces, organizing armies, managing espionage, and even supervising artisans and farmers. Food, aesthetics, and art receive striking attention: it records refined rice cakes (early idli‑like dishes), sweet dishes, meat curries, and spiced wines, but also rare delicacies like fried black rats for the royal table. Courtly beauty, jewelry, perfumes, clothing colours, music, dance, painting, and architecture are codified as sciences of pleasure that sustain royal dignity and emotional balance." 
+                },
+                info: { 
+                    title: "METADATA", 
+                    body: "• <strong style='color:#603b18;'>Material:</strong> Paper<br>• <strong style='color:#603b18;'>Author:</strong> Cālukyamalla Someśvaradeva Sarvajñabhūpāla, i.e. Chālukya Someśvara III<br>• <strong style='color:#603b18;'>Dating:</strong> 12th century, during the lifetime of Chālukya Someśvara III<br>• <strong style='color:#603b18;'>Location:</strong> Oriental Library, Baroda" 
+                },
+                trans: { 
+                    title: "EXCERPTS", 
+                    body: "<strong style='color:#603b18;'>Recipes (B.4, C.13):</strong><br><br><strong style='color:#603b18;'>For Polikā (now Marathi ‘pol̤ī’, Kannada ‘hōḷige’)</strong><br>Poḷikās are recommended to be eaten when they have attained a slight roast from a charcoal stove. The flour coated dough should not be moved excessively on the pan. The Poḷikās must be cooked on a well heated earthen vessel.<br><br><strong style='color:#603b18;'>For Iderikā (modern ‘Idli’) and Vaṭikā (modern ‘vada’)</strong><br>One should place fermented black gram batter into small circular molds. Having covered them with fabric, one should cook them thoroughly. After taking them down, one should then sprinkle powdered pepper over them. One should flavor it with asafoetida and ghee, and cumin. These excellent iderikā are very soothing, white, and smooth." 
+                }
+            },
+            target2: {
+                titleName: "Guḍnāpur Pillar Inscription",
+                summary: { 
+                    title: "DESCRIPTION", 
+                    body: "The Guḍnāpur pillar of the Kadambas uniquely exalts Kāma, not Viṣṇu or Śiva, as cosmic creator, preserver, and destroyer, and centers a royal Kāma temple inside the Kadamba palace between women’s quarters and dance halls. It prescribes a flexible spring Kāma‑festival with scented breezes, bees as “smoke,” and cuckoos as love‑mediators, clearly an early vasantotsava, ancestral to Holi‑style celebrations of eros and renewal. It also names political handbooks of Viṣṇugupta (Chanakya) and Subandhu as the king’s guides, while its prose maps nine numbered brahmadeya land‑grants, tanks, and orchards, preserving the agrarian geography of early Kadamba Karnataka." 
+                },
+                info: { 
+                    title: "METADATA", 
+                    body: "• <strong style='color:#603b18;'>Material:</strong> Stone Pillar<br>• <strong style='color:#603b18;'>Commissioner:</strong> Kadamba King Ravivarma<br>• <strong style='color:#603b18;'>Dating:</strong> 5th Century CE<br>• <strong style='color:#603b18;'>Location:</strong> Gudnapur, Sirsi" 
+                },
+                trans: { 
+                    title: "EXCERPTS", 
+                    body: "<strong style='color:#603b18;'>References to the Arthaśāstra</strong><br>He, the lord, having slain the ruler Viṣṇudāsa, obtained sovereignty while still just a child adorned by its control of the 18 circles. (14)<br><br>He acquired mastery of both the political wisdom authored by Viṣṇugupta and Subandhu, which promotes the elevation of both realms, the political and the religious. (18)<br><br><strong style='color:#603b18;'>Early evidence of Holi</strong><br>This temple where the fire of Kāma—which has smoke in the form of rows of bees—will be kindled by the southern breeze, cooling, conveying joy, and which carries the scent of flowers. (25)<br><br>There, the festival was established for the Mind-Born god, who effects the creation, destruction, and maintenance of the universe, in the first month of every spring, a feast for the lotus-eyes of the people. (27)" 
+                }
+            }
         };
+
+        let activeTargetId = null;
 
         const uiLayer = document.querySelector('#ar-ui-layer');
         const topBar = document.querySelector('#top-title-bar');
         const infoWrapper = document.querySelector('#info-wrapper');
         const titleBox = document.querySelector('#info-title');
         const box = document.querySelector('#info-content');
-        const target = document.querySelector('#ar-target');
         const welcomeScreen = document.querySelector('#welcome-screen');
         const swipeToast = document.querySelector('#swipe-toast');
         const rightMenu = document.querySelector('#right-menu');
@@ -170,15 +220,47 @@
             }, 500);
         }
 
-        target.addEventListener("targetFound", () => { uiLayer.style.display = 'flex'; topBar.style.display = 'block'; });
-        target.addEventListener("targetLost", () => { uiLayer.style.display = 'none'; topBar.style.display = 'none'; closeTab(); hideMenu(); });
+        // --- TARGET DETECTION EVENT SETUP ---
+        const targets = [
+            document.querySelector('#target-0'),
+            document.querySelector('#target-1'),
+            document.querySelector('#target-2')
+        ];
 
-        function setTab(id) {
+        targets.forEach((targetElement, index) => {
+            const targetId = `target${index}`; 
+            
+            targetElement.addEventListener("targetFound", () => {
+                activeTargetId = targetId;
+                topBar.innerHTML = archiveDatabase[targetId].titleName;
+                uiLayer.style.display = 'flex'; 
+                topBar.style.display = 'block';
+                closeTab(); 
+            });
+
+            targetElement.addEventListener("targetLost", () => {
+                uiLayer.style.display = 'none'; 
+                topBar.style.display = 'none'; 
+                closeTab(); 
+                hideMenu();
+                activeTargetId = null;
+            });
+        });
+
+        // --- DYNAMIC TAB LOGIC ---
+        function setTab(tabType) {
+            if (!activeTargetId) return; 
+
             infoWrapper.style.display = 'block';
-            titleBox.innerHTML = contentData[id].title;
-            box.innerHTML = contentData[id].body;
+            
+            // Ensures the box scrolls to top when a new tab is opened
+            infoWrapper.scrollTop = 0; 
+            
+            titleBox.innerHTML = archiveDatabase[activeTargetId][tabType].title;
+            box.innerHTML = archiveDatabase[activeTargetId][tabType].body;
+            
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active-tab'));
-            document.getElementById('btn-' + id).classList.add('active-tab');
+            document.getElementById('btn-' + tabType).classList.add('active-tab');
         }
 
         function closeTab() {
@@ -190,22 +272,15 @@
         let touchstartX = 0; let touchstartY = 0;
         let touchendX = 0; let touchendY = 0;
 
-        // Detect touch start (Used for swiping and tapping outside)
         document.addEventListener('touchstart', e => {
             touchstartX = e.changedTouches[0].screenX;
             touchstartY = e.changedTouches[0].screenY;
-
-            // If the right menu is open, and the user taps anywhere OUTSIDE the right menu, close it
-            if (rightMenu.style.display === 'flex' && !rightMenu.contains(e.target)) {
-                hideMenu();
-            }
+            // Prevent swipe closing when user is scrolling the text box
+            if (rightMenu.style.display === 'flex' && !rightMenu.contains(e.target) && !infoWrapper.contains(e.target)) { hideMenu(); }
         });
 
-        // Also add click listener for desktop testing support
         document.addEventListener('click', e => {
-            if (rightMenu.style.display === 'flex' && !rightMenu.contains(e.target)) {
-                hideMenu();
-            }
+            if (rightMenu.style.display === 'flex' && !rightMenu.contains(e.target)) { hideMenu(); }
         });
 
         document.addEventListener('touchend', e => {
@@ -217,10 +292,8 @@
         function handleSwipe() {
             let xDiff = touchstartX - touchendX;
             let yDiff = touchstartY - touchendY;
-
             if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 60) {
-                if (xDiff > 0) { showMenu(); } // Swiped Left
-                else { hideMenu(); } // Swiped Right
+                if (xDiff > 0) { showMenu(); } else { hideMenu(); }
             }
         }
 
